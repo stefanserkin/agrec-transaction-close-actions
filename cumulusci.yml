@@ -1,0 +1,30 @@
+minimum_cumulusci_version: '4.3.0'
+project:
+    name: agrec-transaction-close-actions
+    package:
+        name: agrec-transaction-close-actions
+        namespace: agrec
+        api_version: '62.0'
+    dependencies:
+        - github: 'https://github.com/stefanserkin/agrec-base-pack'
+    git:
+        default_branch: 'main'
+    test:
+        name_match: '%_Test%'
+    source_format: sfdx
+
+tasks:
+    robot:
+        options:
+            suites: robot/agrec-transaction-close-actions/tests
+            options:
+                outputdir: robot/agrec-transaction-close-actions/results
+
+    robot_testdoc:
+        options:
+            path: robot/agrec-transaction-close-actions/tests
+            output: robot/agrec-transaction-close-actions/doc/agrec-transaction-close-actions_tests.html
+
+    run_tests:
+        options:
+            required_org_code_coverage_percent: 85
