@@ -63,7 +63,7 @@ flows:
 
 orgs:
     scratch:
-        dev_namespaced:
+        dev_named:
             config_file: orgs/dev.json
             days: 7
             namespaced: True
