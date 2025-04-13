@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>TA_CDL_PublishReceiptEventAI</label>
+    <protected>false</protected>
+    <values>
+        <field>agrec__After_Delete__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>agrec__After_Insert__c</field>
+        <value xsi:type="xsd:string">agrec__Content_Document_Link</value>
+    </values>
+    <values>
+        <field>agrec__After_Undelete__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>agrec__After_Update__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>agrec__Allow_Flow_Recursion__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>agrec__Apex_Class_Name__c</field>
+        <value xsi:type="xsd:string">TA_CDL_PublishReceiptEventAI</value>
+    </values>
+    <values>
+        <field>agrec__Before_Delete__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>agrec__Before_Insert__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>agrec__Before_Update__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>agrec__Bypass_Execution__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>agrec__Bypass_Permission__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>agrec__Description__c</field>
+        <value xsi:type="xsd:string">When a receipt is linked to a transaction, publish a transaction close event to notify components</value>
+    </values>
+    <values>
+        <field>agrec__Entry_Criteria__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>agrec__Flow_Name__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>agrec__Order__c</field>
+        <value xsi:type="xsd:double">900.0</value>
+    </values>
+    <values>
+        <field>agrec__Required_Permission__c</field>
+        <value xsi:nil="true"/>
+    </values>
+</CustomMetadata>

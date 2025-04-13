@@ -14,6 +14,27 @@ project:
     source_format: sfdx
 
 tasks:
+    configure_scratch_user:
+        description: Updates the default user to eastern time
+        class_path: cumulusci.tasks.apex.anon.AnonymousApexTask
+        options:
+            apex: >
+                User u = [SELECT Id, TimeZoneSidKey FROM User WHERE Alias = 'UUser' LIMIT 1];
+                u.TimeZoneSidKey = 'America/New_York';
+                update u;
+    
+    dx_deploy:
+        description: Deploy metadata to the org using the new command
+        class_path: cumulusci.tasks.sfdx.SFDXOrgTask
+        options:
+            command: "project deploy start --ignore-conflicts"
+            
+    dx_retrieve:
+        description: Retrieve metadata from the org using the new command
+        class_path: cumulusci.tasks.sfdx.SFDXOrgTask
+        options:
+            command: "project retrieve start --ignore-conflicts"
+
     robot:
         options:
             suites: robot/agrec-transaction-close-actions/tests
@@ -28,3 +49,21 @@ tasks:
     run_tests:
         options:
             required_org_code_coverage_percent: 85
+
+flows:
+    config_dev:
+        steps:
+            10:
+                task: configure_scratch_user
+
+    config_managed:
+        steps:
+            10:
+                task: configure_scratch_user
+
+orgs:
+    scratch:
+        dev_namespaced:
+            config_file: orgs/dev_namespaced.json
+            days: 7
+            namespaced: True
