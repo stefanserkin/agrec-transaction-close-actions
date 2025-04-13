@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Configuration for the Send Receipt action in the Transaction Close Actions component for Traction Rec payment pages</description>
+    <label>Traction Rec Receipt Setting</label>
+    <pluralLabel>Traction Rec Receipt Settings</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>
