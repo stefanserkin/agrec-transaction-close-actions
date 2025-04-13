@@ -6,6 +6,8 @@ project:
         namespace: agrec
         api_version: '62.0'
     dependencies:
+        - version_id: 04t1U000007gD2cQAE
+        - version_id: 04t5G000003RTEwQAO
         - github: 'https://github.com/stefanserkin/agrec-base-pack'
     git:
         default_branch: 'main'
