@@ -69,3 +69,7 @@ orgs:
             config_file: orgs/dev.json
             days: 7
             namespaced: True
+        build:
+            config_file: orgs/build.json
+            days: 1
+            namespaced: True

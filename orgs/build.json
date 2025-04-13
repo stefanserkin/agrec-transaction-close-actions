@@ -1,0 +1,27 @@
+{
+    "orgName": "agrec-transaction-close-actions - Build Org",
+    "edition": "Developer",
+    "settings": {
+        "lightningExperienceSettings": {
+            "enableS1DesktopEnabled": true
+        },
+        "chatterSettings": {
+            "enableChatter": true
+        },
+        "userManagementSettings": {
+            "enableNewProfileUI": true
+        },
+        "securitySettings": {
+            "enableAdminLoginAsAnyUser": true,
+            "sessionSettings": {
+                "forceRelogin": false
+            }
+        },
+        "languageSettings": {
+            "enableTranslationWorkbench": true
+        },
+        "enhancedNotesSettings": {
+            "enableEnhancedNotes": true
+        }
+    }
+}
