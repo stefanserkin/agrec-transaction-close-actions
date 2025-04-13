@@ -3,8 +3,7 @@ private class TA_CDL_PublishReceiptEvent_Test {
     
     @IsTest
     static void testPublishReceiptEvent() {
-        // Id fakeAccountId = agrec.TriggerTestUtility.getFakeId(Account.SObjectType);
-        Id fakeAccountId = '001000000000001';
+        Id fakeAccountId = agrec.TriggerTestUtility.getFakeId(Account.SObjectType);
         ContentDocumentLink cdl = getContentDocumentLink(fakeAccountId);
 
         TA_CDL_PublishReceiptEventAI ta = new TA_CDL_PublishReceiptEventAI();
@@ -21,8 +20,7 @@ private class TA_CDL_PublishReceiptEvent_Test {
         ContentDocumentLink cdl = new ContentDocumentLink();
         cdl.LinkedEntityId = linkedEntityId;
         cdl.ShareType = 'I';
-        // cdl.ContentDocumentId = agrec.TriggerTestUtility.getFakeId(ContentDocument.SObjectType);
-        cdl.ContentDocumentId = '069000000000001';
+        cdl.ContentDocumentId = agrec.TriggerTestUtility.getFakeId(ContentDocument.SObjectType);
         cdl.Visibility = 'AllUsers';
         return cdl;
     }
