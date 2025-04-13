@@ -1,1 +1,1 @@
-{"packageDirectories": [{"path": "force-app", "default": true}], "namespace": null, "sourceApiVersion": "62.0"}
+{"packageDirectories": [{"path": "force-app", "default": true}], "namespace": "agrec", "sourceApiVersion": "62.0"}
