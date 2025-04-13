@@ -1,3 +1,4 @@
+@NamespaceAccessible
 public with sharing class TA_TRX_PublishCloseEventAU implements agrec.TriggerAction.AfterUpdate {
 
     private static final String EVENT_TYPE_CLOSE = 'Close';
@@ -8,9 +9,12 @@ public with sharing class TA_TRX_PublishCloseEventAU implements agrec.TriggerAct
 
     private List<TREX1__Transaction__c> newList;
     
+    @NamespaceAccessible
     public void afterUpdate(List<TREX1__Transaction__c> newList, List<TREX1__Transaction__c> oldList) {
+        System.debug(':::: fired TA_TRX_PublishCloseEventAU');
         this.newList = newList;
         saveResults = EventBus.publish( buildEvents().values() );
+        System.debug('eventMap --> ' + closeEventsByTransactionId);
     }
 
     private Map<Id, Transaction_Close_Event__e> buildEvents() {
