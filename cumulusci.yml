@@ -2,7 +2,7 @@ minimum_cumulusci_version: '4.3.0'
 project:
     name: agrec-transaction-close-actions
     package:
-        name: agrec-transaction-close-actions
+        name: Transaction Close Actions
         namespace: agrec
         api_version: '62.0'
     dependencies:
