@@ -27,7 +27,6 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
     connectedCallback() {
         this.registerErrorListener();
-        console.log(`c__recordId = ${this.currentPageReference.state.c__recordId}`); 
         this.recordId = this.currentPageReference.state.c__recordId;
         this.handleSubscribe();
     }
@@ -82,8 +81,6 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
         this.wiredTransaction = result;
 
         if (result.data) {
-            console.log('transaction result data --> ',JSON.stringify(result.data));
-            console.log('email receipt is enabled? --> ' + this.enableEmailReceipt);
             this.transaction = result.data;
             this.toAddress = this.transaction.TREX1__Contact__r.Email || '';
             this.error = undefined;
@@ -105,7 +102,8 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
     }
     
     get sendReceiptIsDisabled() {
-        return !this.transaction || !this.transaction.ContentDocumentLinks || this.transaction.ContentDocumentLinks.length === 0;
+        return !this.transaction || !this.toAddress ||
+               !this.transaction.ContentDocumentLinks || this.transaction.ContentDocumentLinks.length === 0;
     }
 
     /**
@@ -139,7 +137,6 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
      */
 
     handleToAddressChange(event) {
-        console.log('received change event --> ' + JSON.stringify(event));
         this.toAddress = event.detail.toAddress;
     }
 
@@ -152,16 +149,14 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
         console.log(result);
         if (result) {
-            console.log('closed modal with result --> ',result);
             this.toAddress = result;
             this.handleSendReceipt();
         }
     }
 
     handleSendReceipt() {
-        console.log('Sending receipt...');
         this.isLoading = true;
-        sendReceipt({recordId: this.transaction.Id, toAddress: this.toAddress})
+        sendReceipt({recordId: this.transaction.Id})
             .then(() => {
                 this.showToast(
                     'Receipt Sent',

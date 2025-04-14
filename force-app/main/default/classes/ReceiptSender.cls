@@ -1,4 +1,4 @@
-public with sharing class ReceiptSender {
+public inherited sharing class ReceiptSender {
 
     private static final String RECEIPT_EMAIL_TEMPLATE_NAME = 'Transaction Receipt Email';
 
@@ -6,53 +6,61 @@ public with sharing class ReceiptSender {
     private static EmailTemplate receiptEmailTemplate;
     private static OrgWideEmailAddress fromAddress;
 
+    private Id recordId;
+    private TREX1__Transaction__c trx;
+
+    public ReceiptSender(Id recordId) {
+        this.recordId = recordId;
+        this.trx = TransactionCloseActionsSelector.getTransaction(recordId);
+    }
+
     /**
      * Send an email with the receipt as an attachment for a given transaction
-     * @param recordId - Transaction record id
-     * @param toAddress - Email address to send receipt to
      * @return 'success'
      */
-    @AuraEnabled(cacheable=false)
-    public static String send(Id recordId, String toAddress) {
+    public String send() {
         try {
-            if (recordId == null || toAddress == null || getReceiptSettings() == null) {
-                throw new AuraHandledException('Invalid parameters');
+            if (recordId == null || trx == null || getReceiptSettings() == null) {
+                throw new TransactionCloseActionsException('Invalid parameters');
             }
-
-            TREX1__Transaction__c trx = TransactionCloseActionsSelector.getTransaction(recordId);
 
             if (trx.ContentDocumentLinks.isEmpty()) {
-                throw new AuraHandledException('No receipt found.');
+                throw new TransactionCloseActionsException('No receipt found.');
             }
 
-            ContentDocumentLink cdl = trx.ContentDocumentLinks[0];
-
-            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-            email.setToAddresses(new List<String>{ toAddress });
-            email.setTemplateId( getReceiptEmailTemplateId() );
-            email.setTargetObjectId(trx.TREX1__Contact__c);
-            email.setWhatId(trx.Id);
-            email.setSaveAsActivity(true);
-            email.setUseSignature(false);
-            email.setFileAttachments( constructEmailAttachments(cdl.ContentDocumentId) );
-
-            if (getFromAddress() != null) {
-                email.setOrgWideEmailAddressId( getFromAddress().Id );
-            }
-
+            Messaging.SingleEmailMessage email = constructEmailMessage();
+            email.setFileAttachments( constructEmailAttachments() );
             Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ email });
 
             return 'success';
         } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
+            throw new TransactionCloseActionsException(e.getMessage());
         }
     }
 
-    private static List<Messaging.EmailFileAttachment> constructEmailAttachments(Id contentDocumentId) {
+    private Messaging.SingleEmailMessage constructEmailMessage() {
+        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+        email.setTemplateId( getReceiptEmailTemplateId() );
+        email.setTargetObjectId(trx.TREX1__Contact__c);
+        email.setWhatId(trx.Id);
+        email.setSaveAsActivity(true);
+        email.setUseSignature(false);
+        if (getFromAddress() != null) {
+            email.setOrgWideEmailAddressId( getFromAddress().Id );
+        }
+        return email;
+    }
+
+    private List<Messaging.EmailFileAttachment> constructEmailAttachments() {
+        if (trx.ContentDocumentLinks.isEmpty()) {
+            throw new TransactionCloseActionsException('No receipt found.');
+        }
+        ContentDocumentLink cdl = trx.ContentDocumentLinks[0];
+
         List<ContentVersion> contentVersions = [
             SELECT VersionData, FileExtension, ContentDocument.Title
               FROM ContentVersion 
-             WHERE ContentDocumentId = :contentDocumentId
+             WHERE ContentDocumentId = :cdl.ContentDocumentId
                AND IsLatest = true
               WITH USER_MODE
         ];

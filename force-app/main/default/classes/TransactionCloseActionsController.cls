@@ -21,9 +21,10 @@ public with sharing class TransactionCloseActionsController {
      * @return 'success'
      */
     @AuraEnabled(cacheable=false)
-    public static String sendReceipt(String recordId, String toAddress) {
+    public static String sendReceipt(String recordId) {
         try {
-            return ReceiptSender.send(recordId, toAddress);
+            ReceiptSender sender = new ReceiptSender(recordId);
+            return sender.send();
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }
