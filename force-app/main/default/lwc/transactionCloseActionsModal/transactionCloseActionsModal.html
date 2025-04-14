@@ -1,0 +1,16 @@
+<template>
+    <lightning-modal-header label="Send Receipt"></lightning-modal-header>
+
+    <lightning-modal-body>
+        <lightning-input
+            label="Email Address"
+            value={toAddress}
+            onchange={handleToAddressChange}
+            required
+        ></lightning-input>
+    </lightning-modal-body>
+
+    <lightning-modal-footer>
+        <lightning-button variant="brand" label="Send" onclick={handleSend}></lightning-button>
+    </lightning-modal-footer>
+</template>
