@@ -52,7 +52,7 @@
     </values>
     <values>
         <field>Entry_Criteria__c</field>
-        <value xsi:type="xsd:string">record.TREX1__Status__c = &quot;Close&quot; &amp;&amp; recordPrior.TREX1__Status__c &lt;&gt; &quot;Close&quot;</value>
+        <value xsi:type="xsd:string">ISPICKVAL(record.TREX1__Status__c, &quot;Close&quot;) &amp;&amp; NOT(ISPICKVAL(recordPrior.TREX1__Status__c, &quot;Close&quot;))</value>
     </values>
     <values>
         <field>Flow_Name__c</field>
