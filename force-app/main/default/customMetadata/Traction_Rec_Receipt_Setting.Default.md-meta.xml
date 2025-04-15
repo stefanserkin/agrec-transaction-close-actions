@@ -14,8 +14,4 @@
         <field>From_Address__c</field>
         <value xsi:nil="true"/>
     </values>
-    <values>
-        <field>Transaction_Type__c</field>
-        <value xsi:type="xsd:string">Default</value>
-    </values>
 </CustomMetadata>

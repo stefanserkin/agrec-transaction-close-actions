@@ -41,7 +41,6 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
     handleSubscribe() {
         const messageCallback = (response) => {
-            console.log('New message received: ', JSON.stringify(response));
             // Response contains the payload of the new message received
             const recordIdToRefresh = response.data.payload['agrec__Record_ID__c'];
             if (recordIdToRefresh === this.recordId) {
@@ -50,7 +49,6 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
         };
 
         subscribe(this.channelName, -1, messageCallback).then((response) => {
-            console.log('Subscription request sent to: ', JSON.stringify(response.channel));
             this.subscription = response;
         });
     }
@@ -93,8 +91,8 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
         }
     }
 
-    get transactionIsClosed() {
-        return this.transaction && this.transaction.TREX1__Status__c === 'Close';
+    get paymentIsComplete() {
+        return this.transaction && this.transaction.TREX1__Status__c === 'Close' && this.transaction.TREX1__Payment_Complete__c;
     }
 
     get contactNavigationIsDisabled() {
@@ -147,7 +145,6 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
             toAddress: this.toAddress
         });
 
-        console.log(result);
         if (result) {
             this.toAddress = result;
             this.handleSendReceipt();

@@ -48,11 +48,11 @@
     </values>
     <values>
         <field>Description__c</field>
-        <value xsi:type="xsd:string">When a transaction is newly closed, publish a transaction close event to notify components.</value>
+        <value xsi:type="xsd:string">When payment is completed on a transaction, publish a transaction close event to notify components.</value>
     </values>
     <values>
         <field>Entry_Criteria__c</field>
-        <value xsi:type="xsd:string">ISPICKVAL(record.TREX1__Status__c, &quot;Close&quot;) &amp;&amp; NOT(ISPICKVAL(recordPrior.TREX1__Status__c, &quot;Close&quot;))</value>
+        <value xsi:type="xsd:string">record.TREX1__Payment_Complete__c &amp;&amp; NOT( recordPrior.TREX1__Payment_Complete__c )</value>
     </values>
     <values>
         <field>Flow_Name__c</field>

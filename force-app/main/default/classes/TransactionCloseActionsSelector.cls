@@ -4,7 +4,7 @@ public with sharing class TransactionCloseActionsSelector {
     
     public static TREX1__Transaction__c getTransaction(String transactionId) {
         List<TREX1__Transaction__c> trxs = [
-            SELECT Id, TREX1__Status__c, TREX1__Account__c, TREX1__Contact__c, TREX1__Contact__r.Email,
+            SELECT Id, TREX1__Status__c, TREX1__Payment_Complete__c, TREX1__Account__c, TREX1__Contact__c, TREX1__Contact__r.Email,
                    (SELECT ContentDocumentId 
                       FROM ContentDocumentLinks
                      WHERE ContentDocument.Title LIKE :RECEIPT_PREFIX)
