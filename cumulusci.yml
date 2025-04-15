@@ -70,15 +70,11 @@ tasks:
 flows:
     config_dev:
         steps:
-            9:
-                task: deploy_dev_config
             10:
                 task: configure_scratch_user
 
     config_managed:
         steps:
-            9:
-                task: deploy_qa_config
             10:
                 task: configure_scratch_user
 
