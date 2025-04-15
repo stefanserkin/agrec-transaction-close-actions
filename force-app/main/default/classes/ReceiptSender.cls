@@ -1,7 +1,6 @@
 public inherited sharing class ReceiptSender {
 
-    private static final String RECEIPT_EMAIL_TEMPLATE_NAME = 'Transaction Receipt Email';
-
+    @TestVisible
     private static Traction_Rec_Receipt_Setting__mdt receiptSettings;
     private static EmailTemplate receiptEmailTemplate;
     private static OrgWideEmailAddress fromAddress;
@@ -19,28 +18,27 @@ public inherited sharing class ReceiptSender {
      * @return 'success'
      */
     public String send() {
-        try {
-            if (recordId == null || trx == null || getReceiptSettings() == null) {
-                throw new TransactionCloseActionsException('Invalid parameters');
-            }
+        Messaging.SingleEmailMessage email = constructEmailMessage();
+        email.setFileAttachments( constructEmailAttachments() );
 
-            if (trx.ContentDocumentLinks.isEmpty()) {
-                throw new TransactionCloseActionsException('No receipt found.');
-            }
-
-            Messaging.SingleEmailMessage email = constructEmailMessage();
-            email.setFileAttachments( constructEmailAttachments() );
+        if (isOrgEmailEnabled()) {
             Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ email });
-
-            return 'success';
-        } catch (Exception e) {
-            throw new TransactionCloseActionsException(e.getMessage());
         }
+
+        return 'success';
+    }
+
+    private Traction_Rec_Receipt_Setting__mdt getReceiptSettings() {
+        if (receiptSettings == null) {
+            receiptSettings = Traction_Rec_Receipt_Setting__mdt.getAll()?.values().get(0);
+        }
+        return receiptSettings;
     }
 
     private Messaging.SingleEmailMessage constructEmailMessage() {
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-        email.setTemplateId( getReceiptEmailTemplateId() );
+        String emailTemplateName = getReceiptSettings().Email_Template_Name__c;
+        email.setTemplateId( getReceiptEmailTemplateId(emailTemplateName) );
         email.setTargetObjectId(trx.TREX1__Contact__c);
         email.setWhatId(trx.Id);
         email.setSaveAsActivity(true);
@@ -65,27 +63,17 @@ public inherited sharing class ReceiptSender {
               WITH USER_MODE
         ];
 
-        if (contentVersions.isEmpty()) {
-            throw new AuraHandledException('No receipt found.');
-        }
-
         Messaging.EmailFileAttachment attach = new Messaging.EmailFileAttachment();
         String fileName = !String.isBlank(getReceiptSettings().File_Name__c)
-                          ? getReceiptSettings().File_Name__c + '.' + contentVersions[0].FileExtension
-                          : contentVersions[0].ContentDocument.Title;
+            ? getReceiptSettings().File_Name__c + '.' + contentVersions[0].FileExtension
+            : contentVersions[0].ContentDocument.Title;
         attach.setFilename(fileName);
         attach.setBody(contentVersions[0].VersionData);
         return new List<Messaging.EmailFileAttachment>{attach};
     }
 
-    private static Traction_Rec_Receipt_Setting__mdt getReceiptSettings() {
-        if (receiptSettings == null) {
-            receiptSettings = Traction_Rec_Receipt_Setting__mdt.getAll()?.values().get(0);
-        }
-        return receiptSettings;
-    }
-
-    private static OrgWideEmailAddress getFromAddress() {
+    @TestVisible
+    private OrgWideEmailAddress getFromAddress() {
         String emailAddress = getReceiptSettings().From_Address__c;
         if (String.isBlank(emailAddress)) {
             return new OrgWideEmailAddress();
@@ -106,18 +94,34 @@ public inherited sharing class ReceiptSender {
         return fromAddress;
     }
 
-    private static Id getReceiptEmailTemplateId() {
-        String emailTemplateName = getReceiptSettings().Email_Template_Name__c;
+    @TestVisible
+    private Id getReceiptEmailTemplateId(String emailTemplateName) {
         if (receiptEmailTemplate == null) {
-            receiptEmailTemplate = [
+            List<EmailTemplate> emailTemplates = [
                 SELECT Id, Subject, HtmlValue 
                   FROM EmailTemplate 
                  WHERE Name = :emailTemplateName
                   WITH SYSTEM_MODE
                  LIMIT 1
             ];
+            if (emailTemplates.isEmpty()) {
+                throw new TransactionCloseActionsException('Could not find email template: ' + emailTemplateName);
+            }
+            receiptEmailTemplate = emailTemplates[0];
         }
         return receiptEmailTemplate.Id;
+    }
+
+    @TestVisible
+    private static Boolean isOrgEmailEnabled() {
+        Boolean emailDeliverabilityEnabled = true;
+        try {
+            Messaging.reserveSingleEmailCapacity(1);
+            Messaging.reserveMassEmailCapacity(1);
+        } catch (System.NoAccessException e) {
+            emailDeliverabilityEnabled = false;
+        }
+        return emailDeliverabilityEnabled;
     }
 
 }
