@@ -9,7 +9,8 @@ private class ReceiptSender_Test {
         TREX1__Transaction__c trx = agrec.TestDataFactory.createTransaction(ct.Id);
         insert trx;
 
-        createReceipt(trx.Id);
+        List<ContentDocumentLink> cdls = agrec.TestDataFactory.createReceipts(new List<SObject>{trx});
+        insert cdls;
 
         Test.startTest();
         ReceiptSender sender = new ReceiptSender(trx.Id);
@@ -34,7 +35,8 @@ private class ReceiptSender_Test {
         TREX1__Transaction__c trx = agrec.TestDataFactory.createTransaction(ct.Id);
         insert trx;
 
-        createReceipt(trx.Id);
+        List<ContentDocumentLink> cdls = agrec.TestDataFactory.createReceipts(new List<SObject>{trx});
+        insert cdls;
 
         Test.startTest();
         ReceiptSender sender = new ReceiptSender(trx.Id);
@@ -99,8 +101,6 @@ private class ReceiptSender_Test {
 
     @IsTest
     static void testSendWithNoReceipt() {
-        Boolean isOrgEmailEnabled = ReceiptSender.isOrgEmailEnabled();
-        
         Contact ct = agrec.TestDataFactory.createContacts(1).get(0);
         insert ct;
 
@@ -130,7 +130,8 @@ private class ReceiptSender_Test {
         TREX1__Transaction__c trx = agrec.TestDataFactory.createTransaction(ct.Id);
         insert trx;
 
-        createReceipt(trx.Id);
+        List<ContentDocumentLink> cdls = agrec.TestDataFactory.createReceipts(new List<SObject>{trx});
+        insert cdls;
 
         Test.startTest();
         try {
@@ -141,23 +142,6 @@ private class ReceiptSender_Test {
             System.Assert.isNotNull(e.getMessage(), 'Should have received an exception message');
         }
         Test.stopTest();
-    }
-
-    private static ContentDocumentLink createReceipt(Id linkedEntityId) {
-        ContentVersion cv = new ContentVersion();
-        cv.title = 'receipt-012345';      
-        cv.PathOnClient ='test';           
-        cv.VersionData = Blob.valueOf('Test File Body');         
-        insert cv;
-
-        ContentVersion cvRefreshed = [SELECT Id, ContentDocumentId FROM ContentVersion where Id = :cv.Id];
-
-        ContentDocumentLink cdl = agrec.TestDataFactory.createContentDocumentLink(
-            linkedEntityId,
-            cvRefreshed.ContentDocumentId
-        );
-        insert cdl;
-        return cdl;
     }
 
 }

@@ -21,7 +21,7 @@ public inherited sharing class ReceiptSender {
         Messaging.SingleEmailMessage email = constructEmailMessage();
         email.setFileAttachments( constructEmailAttachments() );
 
-        if (isOrgEmailEnabled()) {
+        if (agrec.Util.isOrgEmailEnabled()) {
             Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ email });
         }
 
@@ -110,18 +110,6 @@ public inherited sharing class ReceiptSender {
             receiptEmailTemplate = emailTemplates[0];
         }
         return receiptEmailTemplate.Id;
-    }
-
-    @TestVisible
-    private static Boolean isOrgEmailEnabled() {
-        Boolean emailDeliverabilityEnabled = true;
-        try {
-            Messaging.reserveSingleEmailCapacity(1);
-            Messaging.reserveMassEmailCapacity(1);
-        } catch (System.NoAccessException e) {
-            emailDeliverabilityEnabled = false;
-        }
-        return emailDeliverabilityEnabled;
     }
 
 }

@@ -17,7 +17,6 @@ public with sharing class TransactionCloseActionsController {
     /**
      * Send an email with the receipt as an attachment for a given transaction
      * @param recordId - Transaction record id
-     * @param toAddress - Email address to send receipt to
      * @return 'success'
      */
     @AuraEnabled(cacheable=false)
