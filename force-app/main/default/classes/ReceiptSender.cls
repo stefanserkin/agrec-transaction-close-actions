@@ -37,8 +37,7 @@ public inherited sharing class ReceiptSender {
 
     private Messaging.SingleEmailMessage constructEmailMessage() {
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-        String emailTemplateName = getReceiptSettings().Email_Template_Name__c;
-        email.setTemplateId( getReceiptEmailTemplateId(emailTemplateName) );
+        email.setTemplateId( getReceiptEmailTemplateId() );
         email.setTargetObjectId(trx.TREX1__Contact__c);
         email.setWhatId(trx.Id);
         email.setSaveAsActivity(true);
@@ -95,7 +94,8 @@ public inherited sharing class ReceiptSender {
     }
 
     @TestVisible
-    private Id getReceiptEmailTemplateId(String emailTemplateName) {
+    private Id getReceiptEmailTemplateId() {
+        String emailTemplateName = getReceiptSettings().Email_Template_Name__c;
         if (receiptEmailTemplate == null) {
             List<EmailTemplate> emailTemplates = [
                 SELECT Id, Subject, HtmlValue 
