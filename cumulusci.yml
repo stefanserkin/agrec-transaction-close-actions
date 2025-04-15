@@ -5,6 +5,7 @@ project:
         name: Transaction Close Actions
         namespace: agrec
         api_version: '62.0'
+        version: 0.1
     dependencies:
         - github: 'https://github.com/stefanserkin/agrec-base-pack'
         - version_id: 04tKi0000000SO8IAM
