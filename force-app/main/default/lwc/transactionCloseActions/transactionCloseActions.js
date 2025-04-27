@@ -27,17 +27,18 @@ import { refreshApex } from '@salesforce/apex';
 import TransactionCloseModal from 'c/transactionCloseActionsModal';
 import getTransaction from '@salesforce/apex/TransactionCloseActionsController.getTransaction';
 import sendReceipt from '@salesforce/apex/TransactionCloseActionsController.sendReceipt';
+import hasComponentAccess from '@salesforce/customPermission/Transaction_Close_Actions_Access';
 
 export default class TransactionCloseActions extends NavigationMixin(LightningElement) {
+    @api recordId;
     @api enableEmailReceipt = false;
+    isAppPage = false;
 
     isLoading = false;
     error;
 
     channelName = '/event/agrec__Transaction_Close_Event__e';
     subscription = {};
-
-    recordId;
 
     wiredTransaction = [];
     @track transaction;
@@ -48,12 +49,28 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
     connectedCallback() {
         this.registerErrorListener();
-        this.recordId = this.currentPageReference.state.c__recordId;
-        this.handleSubscribe();
+
+        if (!this.recordId && this.currentPageReference?.state?.c__recordId) {
+            console.log('::: settings recordid to ',this.currentPageReference.state.c__recordId);
+            this.recordId = this.currentPageReference.state.c__recordId;
+            this.isAppPage = true;
+        }
+
+        if (this.recordId) {
+            console.log('has record id. Subscribing to platform event channel');
+            this.handleSubscribe();
+        } else {
+            const errorMessage = 'The Transaction Close Actions toolbar could not load. No recordId found in context or URL.';
+            console.error(errorMessage);
+        }
     }
 
     disconnectedCallback() {
         this.handleUnsubscribe();
+    }
+
+    get isComponentVisible() {
+        return hasComponentAccess;
     }
 
     /**
@@ -63,6 +80,7 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
     handleSubscribe() {
         const messageCallback = (response) => {
             // Response contains the payload of the new message received
+            console.log(':::: received payload --> ', JSON.stringify(response.data.payload));
             const recordIdToRefresh = response.data.payload['agrec__Record_ID__c'];
             if (recordIdToRefresh === this.recordId) {
                 refreshApex(this.wiredTransaction);
@@ -96,11 +114,14 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
     @wire(getTransaction, { recordId: '$recordId' })
     wiredTransactionResult(result) {
+        console.log(':::: looking for transaction');
+        console.log('::: user has permission ? ' + this.isComponentVisible);
         this.isLoading = true;
         this.wiredTransaction = result;
 
         if (result.data) {
             this.transaction = result.data;
+            console.log(':::: transaction --> ', JSON.stringify(this.transaction));
             this.toAddress = this.transaction.TREX1__Contact__r.Email || '';
             this.error = undefined;
             this.isLoading = false;
@@ -118,6 +139,14 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
     get contactNavigationIsDisabled() {
         return !this.transaction || !this.transaction.TREX1__Contact__c;
+    }
+
+    get accountNavigationIsDisabled() {
+        return !this.transaction || !this.transaction.TREX1__Account__c;
+    }
+
+    get transactionNavigationIsDisabled() {
+        return !this.transaction || !this.isAppPage;
     }
     
     get sendReceiptIsDisabled() {

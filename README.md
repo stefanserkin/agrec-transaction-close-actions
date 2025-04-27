@@ -1,4 +1,4 @@
-# agrec-transaction-close-actions
+# Transaction Close Actions (agrec)
 
 Traction Rec version 60 comes with a new payment page experience, hosted on a Lightning App Page. This solution offers navigation to related records and email receipt delivery when a transaction is closed.
 

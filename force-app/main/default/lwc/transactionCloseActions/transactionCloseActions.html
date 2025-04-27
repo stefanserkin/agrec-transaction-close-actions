@@ -1,58 +1,60 @@
 <template>
-    <template lwc:if={paymentIsComplete}>
-        <lightning-card>
-            <template lwc:if={isLoading}>
-                <lightning-spinner
-                    alternative-text="Loading..."
-                    size="small"
-                    variant="brand"
-                ></lightning-spinner>
-            </template>
-
-            <div class="slds-grid slds-align_absolute-center">
-                <div class="slds-col">
-                    <lightning-button-group class={navigationButtonGroupStyle}>
-                        <lightning-button
-                            variant="brand-outline"
-                            icon-name="standard:account"
-                            icon-position="left"
-                            label="Go To Account"
-                            onclick={handleGoToAccount}
-                        ></lightning-button>
-                        <lightning-button
-                            variant="brand-outline"
-                            icon-name="utility:contact"
-                            icon-position="left"
-                            label="Go To Contact"
-                            onclick={handleGoToContact}
-                            disabled={contactNavigationIsDisabled}
-                        ></lightning-button>
-                        <lightning-button
-                            variant="brand-outline"
-                            icon-name="utility:money"
-                            icon-position="left"
-                            label="Go To Transaction"
-                            onclick={handleGoToTransaction}
-                        ></lightning-button>
-                    </lightning-button-group>
-                </div>
-
-                <template lwc:if={enableEmailReceipt}>
-                    <div class="slds-col">
-                        <lightning-button
-                            variant="brand"
-                            icon-name="utility:email"
-                            icon-position="left"
-                            label="Email Receipt"
-                            onclick={handleEmailReceipt}
-                            disabled={sendReceiptIsDisabled}
-                            class="slds-var-p-left_medium"
-                        ></lightning-button>
-                    </div>
+    <template lwc:if={isComponentVisible}>
+        <template lwc:if={paymentIsComplete}>
+            <lightning-card>
+                <template lwc:if={isLoading}>
+                    <lightning-spinner
+                        alternative-text="Loading..."
+                        size="small"
+                        variant="brand"
+                    ></lightning-spinner>
                 </template>
-                
-            </div>
-            
-        </lightning-card>
+    
+                <div class="slds-grid slds-align_absolute-center">
+                    <div class="slds-col">
+                        <lightning-button-group class={navigationButtonGroupStyle}>
+                            <lightning-button
+                                variant="brand-outline"
+                                icon-name="standard:account"
+                                icon-position="left"
+                                label="Go To Account"
+                                onclick={handleGoToAccount}
+                                disabled={accountNavigationIsDisabled}
+                            ></lightning-button>
+                            <lightning-button
+                                variant="brand-outline"
+                                icon-name="utility:contact"
+                                icon-position="left"
+                                label="Go To Contact"
+                                onclick={handleGoToContact}
+                                disabled={contactNavigationIsDisabled}
+                            ></lightning-button>
+                            <lightning-button
+                                variant="brand-outline"
+                                icon-name="utility:money"
+                                icon-position="left"
+                                label="Go To Transaction"
+                                onclick={handleGoToTransaction}
+                                disabled={transactionNavigationIsDisabled}
+                            ></lightning-button>
+                        </lightning-button-group>
+                    </div>
+    
+                    <template lwc:if={enableEmailReceipt}>
+                        <div class="slds-col">
+                            <lightning-button
+                                variant="brand"
+                                icon-name="utility:email"
+                                icon-position="left"
+                                label="Email Receipt"
+                                onclick={handleEmailReceipt}
+                                disabled={sendReceiptIsDisabled}
+                                class="slds-var-p-left_medium"
+                            ></lightning-button>
+                        </div>
+                    </template>
+                </div>
+            </lightning-card>
+        </template>
     </template>
 </template>

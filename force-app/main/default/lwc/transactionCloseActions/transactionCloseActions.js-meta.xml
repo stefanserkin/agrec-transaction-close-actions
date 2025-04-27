@@ -5,6 +5,7 @@
     <masterLabel>Transaction Close Actions</masterLabel>
     <targets>
         <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__AppPage">
@@ -13,6 +14,24 @@
                 label="Enable Email Receipt"
                 type="Boolean"
             />
+            <supportedFormFactors>
+                <supportedFormFactor type="Large"></supportedFormFactor>
+                <supportedFormFactor type="Small"></supportedFormFactor>
+            </supportedFormFactors>
+        </targetConfig>
+        <targetConfig targets="lightning__RecordPage">
+            <objects>
+                <object>TREX1__Transaction__c</object>
+            </objects>
+            <property
+                name="enableEmailReceipt"
+                label="Enable Email Receipt"
+                type="Boolean"
+            />
+            <supportedFormFactors>
+                <supportedFormFactor type="Large"></supportedFormFactor>
+                <supportedFormFactor type="Small"></supportedFormFactor>
+            </supportedFormFactors>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
