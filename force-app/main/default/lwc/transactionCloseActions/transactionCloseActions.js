@@ -51,13 +51,11 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
         this.registerErrorListener();
 
         if (!this.recordId && this.currentPageReference?.state?.c__recordId) {
-            console.log('::: settings recordid to ',this.currentPageReference.state.c__recordId);
             this.recordId = this.currentPageReference.state.c__recordId;
             this.isAppPage = true;
         }
 
         if (this.recordId) {
-            console.log('has record id. Subscribing to platform event channel');
             this.handleSubscribe();
         } else {
             const errorMessage = 'The Transaction Close Actions toolbar could not load. No recordId found in context or URL.';
@@ -76,11 +74,9 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
     /**
      * empApi subscription
      */
-
+    
     handleSubscribe() {
         const messageCallback = (response) => {
-            // Response contains the payload of the new message received
-            console.log(':::: received payload --> ', JSON.stringify(response.data.payload));
             const recordIdToRefresh = response.data.payload['agrec__Record_ID__c'];
             if (recordIdToRefresh === this.recordId) {
                 refreshApex(this.wiredTransaction);
@@ -93,18 +89,14 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
     }
 
     handleUnsubscribe() {
-        // Invoke unsubscribe method of empApi
         unsubscribe(this.subscription, (response) => {
             console.log('unsubscribe() response: ', JSON.stringify(response));
-            // Response is true for successful unsubscribe
         });
     }
 
     registerErrorListener() {
-        // Invoke onError empApi method
         onError((error) => {
             console.log('Received error from server: ', JSON.stringify(error));
-            // Error contains the server-side error
         });
     }
 
@@ -114,14 +106,11 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
     @wire(getTransaction, { recordId: '$recordId' })
     wiredTransactionResult(result) {
-        console.log(':::: looking for transaction');
-        console.log('::: user has permission ? ' + this.isComponentVisible);
         this.isLoading = true;
         this.wiredTransaction = result;
 
         if (result.data) {
             this.transaction = result.data;
-            console.log(':::: transaction --> ', JSON.stringify(this.transaction));
             this.toAddress = this.transaction.TREX1__Contact__r.Email || '';
             this.error = undefined;
             this.isLoading = false;
@@ -223,6 +212,10 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
                 this.isLoading = false;
             });
     }
+
+    /**
+     * Util
+     */
 
     showToast(title, message, variant) {
         const toastEvent = new ShowToastEvent({
