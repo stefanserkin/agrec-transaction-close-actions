@@ -17,6 +17,17 @@ project:
     source_format: sfdx
 
 tasks:
+    assign_component_user_permset:
+        description: Assigns the user access permset to the running user
+        class_path: cumulusci.tasks.apex.anon.AnonymousApexTask
+        options:
+            apex: >
+                PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'agrec_Transaction_Close_Actions_User' LIMIT 1];
+                insert new PermissionSetAssignment(
+                    PermissionSetId = ps.Id,
+                    AssigneeId = UserInfo.getUserId()
+                );
+
     configure_scratch_user:
         description: Updates the default user to eastern time
         class_path: cumulusci.tasks.apex.anon.AnonymousApexTask
@@ -72,11 +83,15 @@ flows:
         steps:
             10:
                 task: configure_scratch_user
+            11:
+                task: assign_component_user_permset
 
     config_managed:
         steps:
             10:
                 task: configure_scratch_user
+            11:
+                task: assign_component_user_permset
 
 orgs:
     scratch:
