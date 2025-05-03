@@ -41,18 +41,19 @@ private class TransactionCloseActionsController_Test {
         insert cdls;
 
         Test.startTest();
-        String result = TransactionCloseActionsController.sendReceipt(trx.Id);
+        String result = TransactionCloseActionsController.sendReceipt(trx.Id, ct.Id);
         System.Assert.areEqual('success', result, 'Should have received a successful send result');
         Test.stopTest();
     }
 
     @IsTest
     static void testSendReceiptWithException() {
-        Id fakeId = agrec.TriggerTestUtility.getFakeId(TREX1__Transaction__c.SObjectType);
+        Id fakeTransactionId = agrec.TriggerTestUtility.getFakeId(TREX1__Transaction__c.SObjectType);
+        Id fakeContactId = agrec.TriggerTestUtility.getFakeId(Contact.SObjectType);
 
         Test.startTest();
         try {
-            String result = TransactionCloseActionsController.sendReceipt(fakeId);
+            String result = TransactionCloseActionsController.sendReceipt(fakeTransactionId, fakeContactId);
             System.Assert.fail('Should have received an exception for no transaction found');
         } catch (Exception e) {
             System.Assert.isNotNull(e.getMessage(), 'Should have received an exception message');

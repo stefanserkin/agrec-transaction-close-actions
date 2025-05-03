@@ -18,12 +18,14 @@ public without sharing class ReceiptSender {
     private static EmailTemplate receiptEmailTemplate;
     private static OrgWideEmailAddress fromAddress;
 
-    private Id recordId;
+    private Id transactionId;
+    private Id recipientContactId;
     private TREX1__Transaction__c trx;
 
-    public ReceiptSender(Id recordId) {
-        this.recordId = recordId;
-        this.trx = TransactionCloseActionsSelector.getTransaction(recordId);
+    public ReceiptSender(Id transactionId, Id recipientContactId) {
+        this.transactionId = transactionId;
+        this.recipientContactId = recipientContactId;
+        this.trx = TransactionCloseActionsSelector.getTransaction(transactionId);
     }
 
     /**
@@ -51,7 +53,7 @@ public without sharing class ReceiptSender {
     private Messaging.SingleEmailMessage constructEmailMessage() {
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
         email.setTemplateId( getReceiptEmailTemplateId() );
-        email.setTargetObjectId(trx.TREX1__Contact__c);
+        email.setTargetObjectId(recipientContactId);
         email.setWhatId(trx.Id);
         email.setSaveAsActivity(true);
         email.setUseSignature(false);

@@ -29,13 +29,14 @@ public with sharing class TransactionCloseActionsController {
 
     /**
      * Send an email with the receipt as an attachment for a given transaction
-     * @param recordId - Transaction record id
+     * @param transactionId - Transaction record id
+     * @param contactId = Contact to send to
      * @return 'success'
      */
     @AuraEnabled(cacheable=false)
-    public static String sendReceipt(String recordId) {
+    public static String sendReceipt(String transactionId, String recipientContactId) {
         try {
-            ReceiptSender sender = new ReceiptSender(recordId);
+            ReceiptSender sender = new ReceiptSender(transactionId, recipientContactId);
             return sender.send();
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());

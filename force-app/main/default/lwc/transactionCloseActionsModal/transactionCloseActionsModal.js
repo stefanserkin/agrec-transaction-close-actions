@@ -21,15 +21,68 @@
  */
 import { api } from 'lwc';
 import LightningModal from 'lightning/modal';
+import NAME_FIELD from '@salesforce/schema/Contact.Name';
+import EMAIL_FIELD from '@salesforce/schema/Contact.Email';
+import ACCOUNT_FIELD from '@salesforce/schema/Contact.AccountId';
 
 export default class TransactionCloseActionsModal extends LightningModal {
-    @api toAddress;
+    @api recipientContactId;
+    @api isSelectAlternateContactMode = false;
 
-    handleToAddressChange(event) {
-        this.toAddress = event.target.value;
+    nameField = NAME_FIELD;
+    emailField = EMAIL_FIELD;
+    accountField = ACCOUNT_FIELD;
+
+    searchContactsFilter = {
+        criteria: [
+            {
+                fieldPath: 'Email',
+                operator: 'ne',
+                value: null,
+            }
+        ]
+    };
+
+    searchContactsDisplayInfo = {
+        primaryField: 'Name',
+        additionalFields: ['Email']
+    };
+
+    searchContactsMatchingInfo = {
+        primaryField: { fieldPath: 'Name', mode: 'contains' },
+        additionalFields: [{ fieldPath: 'Email', mode: 'contains' }]
+    };
+
+    get toggleSelectAlternateContactLabel() {
+        return this.isSelectAlternateContactMode ? 'Cancel' : 'Change Recipient Contact';
+    }
+
+    get toggleSelectAlternateContactIconName() {
+        return this.isSelectAlternateContactMode ? 'utility:leave_conference' : 'utility:change_owner';
+    }
+
+    get toggleSelectAlternateContactVariant() {
+        return this.isSelectAlternateContactMode ? 'destructive-text' : 'brand-outline';
+    }
+
+    get sendIsDisabled() {
+        return !this.recipientContactId;
+    }
+
+    handleContactChange(event) {
+        this.recipientContactId = event.detail.recordId;
+        this.toggleSelectAlternateContactMode();
+    }
+
+    toggleSelectAlternateContactMode() {
+        if (this.isSelectAlternateContactMode && !this.recipientContactId) {
+            this.close();
+        }
+        this.isSelectAlternateContactMode = !this.isSelectAlternateContactMode;
     }
 
     handleSend() {
-        this.close(this.toAddress);
+        this.close(this.recipientContactId);
     }
+
 }

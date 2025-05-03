@@ -13,7 +13,7 @@ private class ReceiptSender_Test {
         insert cdls;
 
         Test.startTest();
-        ReceiptSender sender = new ReceiptSender(trx.Id);
+        ReceiptSender sender = new ReceiptSender(trx.Id, ct.Id);
         String result = sender.send();
         Test.stopTest();
 
@@ -21,7 +21,7 @@ private class ReceiptSender_Test {
     }
 
     @IsTest
-    static void testSendReceiptWithDefaultFileName() {
+    static void testSendReceiptWithDefinedFileName() {
         EmailTemplate emailTemplate = [SELECT Name FROM EmailTemplate LIMIT 1];
 
         Traction_Rec_Receipt_Setting__mdt settings = new Traction_Rec_Receipt_Setting__mdt();
@@ -39,7 +39,32 @@ private class ReceiptSender_Test {
         insert cdls;
 
         Test.startTest();
-        ReceiptSender sender = new ReceiptSender(trx.Id);
+        ReceiptSender sender = new ReceiptSender(trx.Id, ct.Id);
+        String result = sender.send();
+        Test.stopTest();
+
+        System.Assert.areEqual('success', result, 'Should have received a successful send result');
+    }
+
+    @IsTest
+    static void testSendReceiptWithDefaultFileName() {
+        EmailTemplate emailTemplate = [SELECT Name FROM EmailTemplate LIMIT 1];
+
+        Traction_Rec_Receipt_Setting__mdt settings = new Traction_Rec_Receipt_Setting__mdt();
+        settings.Email_Template_Name__c = emailTemplate.Name;
+        ReceiptSender.receiptSettings = settings;
+
+        Contact ct = agrec.TestDataFactory.createContacts(1).get(0);
+        insert ct;
+
+        TREX1__Transaction__c trx = agrec.TestDataFactory.createTransaction(ct.Id);
+        insert trx;
+
+        List<ContentDocumentLink> cdls = agrec.TestDataFactory.createReceipts(new List<SObject>{trx});
+        insert cdls;
+
+        Test.startTest();
+        ReceiptSender sender = new ReceiptSender(trx.Id, ct.Id);
         String result = sender.send();
         Test.stopTest();
 
@@ -63,7 +88,7 @@ private class ReceiptSender_Test {
         TREX1__Transaction__c trx = agrec.TestDataFactory.createTransaction(ct.Id);
         insert trx;
 
-        ReceiptSender sender = new ReceiptSender(trx.Id);
+        ReceiptSender sender = new ReceiptSender(trx.Id, ct.Id);
         Test.startTest();
         OrgWideEmailAddress result = sender.getFromAddress();
         Test.stopTest();
@@ -73,11 +98,12 @@ private class ReceiptSender_Test {
 
     @IsTest
     static void testSendWithInvalidRecordId() {
-        Id fakeId = agrec.TriggerTestUtility.getFakeId(TREX1__Transaction__c.SObjectType);
+        Id fakeTransactionId = agrec.TriggerTestUtility.getFakeId(TREX1__Transaction__c.SObjectType);
+        Id fakeContactId = agrec.TriggerTestUtility.getFakeId(Contact.SObjectType);
 
         Test.startTest();
         try {
-            ReceiptSender sender = new ReceiptSender(fakeId);
+            ReceiptSender sender = new ReceiptSender(fakeTransactionId, fakeContactId);
             String result = sender.send();
             System.Assert.fail('Should have received an exception for no transaction found');
         } catch (Exception e) {
@@ -90,7 +116,7 @@ private class ReceiptSender_Test {
     static void testSendWithNullRecordId() {
         Test.startTest();
         try {
-            ReceiptSender sender = new ReceiptSender(null);
+            ReceiptSender sender = new ReceiptSender(null, null);
             String result = sender.send();
             System.Assert.fail('Should have received an exception for no transaction found');
         } catch (Exception e) {
@@ -109,7 +135,7 @@ private class ReceiptSender_Test {
 
         Test.startTest();
         try {
-            ReceiptSender sender = new ReceiptSender(trx.Id);
+            ReceiptSender sender = new ReceiptSender(trx.Id, ct.Id);
             String result = sender.send();
             System.Assert.fail('Should have received an exception for the lack of receipt');
         } catch (Exception e) {
@@ -135,7 +161,7 @@ private class ReceiptSender_Test {
 
         Test.startTest();
         try {
-            ReceiptSender sender = new ReceiptSender(trx.Id);
+            ReceiptSender sender = new ReceiptSender(trx.Id, ct.Id);
             String result = sender.send();
             System.Assert.fail('Should have received an exception for the invalid template name');
         } catch (Exception e) {

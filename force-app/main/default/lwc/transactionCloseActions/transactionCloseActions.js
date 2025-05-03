@@ -42,7 +42,7 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
     wiredTransaction = [];
     @track transaction;
-    toAddress;
+    recipientContactId;
 
     @wire(CurrentPageReference)
     currentPageReference;
@@ -69,6 +69,10 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
     get isComponentVisible() {
         return hasComponentAccess;
+    }
+
+    get navigationButtonGroupStyle() {
+        return this.enableEmailReceipt ? 'slds-var-m-around_medium slds-float_right' : 'slds-var-m-around_medium slds-align_absolute-center';
     }
 
     /**
@@ -111,7 +115,7 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
         if (result.data) {
             this.transaction = result.data;
-            this.toAddress = this.transaction.TREX1__Contact__r.Email || '';
+            this.recipientContactId = this.transaction.TREX1__Contact__r.Email ? this.transaction.TREX1__Contact__c : undefined;
             this.error = undefined;
             this.isLoading = false;
         } else if (result.error) {
@@ -139,8 +143,7 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
     }
     
     get sendReceiptIsDisabled() {
-        return !this.transaction || !this.toAddress ||
-               !this.transaction.ContentDocumentLinks || this.transaction.ContentDocumentLinks.length === 0;
+        return !this.transaction || !this.transaction.ContentDocumentLinks || this.transaction.ContentDocumentLinks.length === 0;
     }
 
     /**
@@ -159,11 +162,11 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
         this.navigateToRecord(this.transaction.Id);
     }
 
-    navigateToRecord(recId) {
+    navigateToRecord(recordId) {
         this[NavigationMixin.Navigate]({
             type: 'standard__recordPage',
             attributes: {
-                recordId: recId,
+                recordId: recordId,
                 actionName: 'view'
             }
         });
@@ -173,26 +176,23 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
      * Email Receipt
      */
 
-    handleToAddressChange(event) {
-        this.toAddress = event.detail.toAddress;
-    }
-
     async handleEmailReceipt() {
         const result = await TransactionCloseModal.open({
             size: 'small',
             description: 'Set the email address to send the receipt to',
-            toAddress: this.toAddress
+            recipientContactId: this.recipientContactId,
+            isSelectAlternateContactMode: !this.recipientContactId
         });
 
         if (result) {
-            this.toAddress = result;
+            this.recipientContactId = result;
             this.handleSendReceipt();
         }
     }
 
     handleSendReceipt() {
         this.isLoading = true;
-        sendReceipt({recordId: this.transaction.Id})
+        sendReceipt({transactionId: this.transaction.Id, recipientContactId: this.recipientContactId})
             .then(() => {
                 this.showToast(
                     'Receipt Sent',
@@ -224,10 +224,6 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
             variant
         })
         this.dispatchEvent(toastEvent);
-    }
-
-    get navigationButtonGroupStyle() {
-        return this.enableEmailReceipt ? 'slds-var-m-around_medium slds-float_right' : 'slds-var-m-around_medium slds-align_absolute-center';
     }
 
 }

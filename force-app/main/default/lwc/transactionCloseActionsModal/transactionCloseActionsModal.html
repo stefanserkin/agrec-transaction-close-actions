@@ -1,17 +1,59 @@
 <template>
+
     <lightning-modal-header label="Send Receipt"></lightning-modal-header>
 
     <lightning-modal-body>
-        <lightning-input
-            label="Email Address"
-            value={toAddress}
-            onchange={handleToAddressChange}
-            read-only
-            required
-        ></lightning-input>
+        <lightning-layout>
+
+            <lightning-layout-item size="6" padding="small">
+                <!-- TOGGLE SELECT ALTERNATE CONTACT MODE -->
+                <lightning-button
+                    variant={toggleSelectAlternateContactVariant}
+                    label={toggleSelectAlternateContactLabel}
+                    icon-name={toggleSelectAlternateContactIconName}
+                    icon-position="left"
+                    onclick={toggleSelectAlternateContactMode}
+                    class="slds-align_absolute-center"
+                ></lightning-button>
+            </lightning-layout-item>
+
+            <lightning-layout-item size="6" padding="small">
+                <template lwc:if={isSelectAlternateContactMode}>
+                    <!-- SELECT ALTERNATE CONTACT -->
+                    <lightning-record-picker
+                        label="Search for Contact"
+                        placeholder="Search by Name or Email..."
+                        object-api-name="Contact"
+                        filter={searchContactsFilter}
+                        display-info={searchContactsDisplayInfo}
+                        matching-info={searchContactsMatchingInfo}
+                        onchange={handleContactChange}
+                    ></lightning-record-picker>
+                </template>
+
+                <template lwc:else>
+                    <!-- RECIPIENT CONTACT -->
+                    <lightning-record-view-form
+                        object-api-name="Contact"
+                        record-id={recipientContactId}
+                    >
+                        <lightning-output-field field-name={nameField}> </lightning-output-field>
+                        <lightning-output-field field-name={emailField}> </lightning-output-field>
+                        <lightning-output-field field-name={accountField}> </lightning-output-field>
+                    </lightning-record-view-form>
+                </template>
+            </lightning-layout-item>
+                
+        </lightning-layout>
     </lightning-modal-body>
 
     <lightning-modal-footer>
-        <lightning-button variant="brand" label="Send" onclick={handleSend}></lightning-button>
+        <lightning-button 
+            variant="brand" 
+            label="Send" 
+            onclick={handleSend}
+            disabled={sendIsDisabled}
+        ></lightning-button>
     </lightning-modal-footer>
+
 </template>
