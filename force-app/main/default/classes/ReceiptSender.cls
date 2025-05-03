@@ -113,7 +113,7 @@ public without sharing class ReceiptSender {
             List<EmailTemplate> emailTemplates = [
                 SELECT Id, Subject, HtmlValue 
                   FROM EmailTemplate 
-                 WHERE Name = :emailTemplateName
+                 WHERE DeveloperName = :emailTemplateName OR Name = :emailTemplateName
                   WITH SYSTEM_MODE
                  LIMIT 1
             ];
