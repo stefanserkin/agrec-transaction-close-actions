@@ -18,6 +18,9 @@ public without sharing class ReceiptSender {
     private static EmailTemplate receiptEmailTemplate;
     private static OrgWideEmailAddress fromAddress;
 
+    @TestVisible
+    private static List<Messaging.SendEmailResult> testSendResults;
+
     private Id transactionId;
     private Id recipientContactId;
     private TREX1__Transaction__c trx;
@@ -30,24 +33,18 @@ public without sharing class ReceiptSender {
 
     /**
      * Send an email with the receipt as an attachment for a given transaction
-     * @return 'success'
+     * @return 'success' on successful send
      */
     public String send() {
+        if (!agrec.Util.isOrgEmailEnabled()) {
+            throw new TransactionCloseActionsException('Email deliverability is not enabled in this org');
+        }
+
         Messaging.SingleEmailMessage email = constructEmailMessage();
         email.setFileAttachments( constructEmailAttachments() );
-
-        if (agrec.Util.isOrgEmailEnabled()) {
-            Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ email });
-        }
+        handleSendResults( sendEmail(email) );
 
         return 'success';
-    }
-
-    private Traction_Rec_Receipt_Setting__mdt getReceiptSettings() {
-        if (receiptSettings == null) {
-            receiptSettings = Traction_Rec_Receipt_Setting__mdt.getAll()?.values().get(0);
-        }
-        return receiptSettings;
     }
 
     private Messaging.SingleEmailMessage constructEmailMessage() {
@@ -85,6 +82,25 @@ public without sharing class ReceiptSender {
         attach.setBody(contentVersions[0].VersionData);
         return new List<Messaging.EmailFileAttachment>{attach};
     }
+
+    private List<Messaging.SendEmailResult> sendEmail(Messaging.SingleEmailMessage email) {
+        if (testSendResults != null) {
+            return testSendResults;
+        }
+        return Messaging.sendEmail( new List<Messaging.SingleEmailMessage>{email} );
+    }
+
+    private static void handleSendResults(List<Messaging.SendEmailResult> sendResults) {
+        if (!sendResults[0].isSuccess()) {
+            List<Messaging.SendEmailError> errors = sendResults[0].getErrors();
+            String message = errors != null && !errors.isEmpty() ? errors[0].getMessage() : 'Unknown error';
+            throw new TransactionCloseActionsException('Failed to send receipt. ' + message);
+        }
+    }
+
+    /**
+     * Org settings utilities
+     */
 
     @TestVisible
     private OrgWideEmailAddress getFromAddress() {
@@ -125,6 +141,13 @@ public without sharing class ReceiptSender {
             receiptEmailTemplate = emailTemplates[0];
         }
         return receiptEmailTemplate.Id;
+    }
+
+    private Traction_Rec_Receipt_Setting__mdt getReceiptSettings() {
+        if (receiptSettings == null) {
+            receiptSettings = Traction_Rec_Receipt_Setting__mdt.getAll()?.values().get(0);
+        }
+        return receiptSettings;
     }
 
 }

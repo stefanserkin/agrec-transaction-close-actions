@@ -100,7 +100,7 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
     registerErrorListener() {
         onError((error) => {
-            console.log('Received error from server: ', JSON.stringify(error));
+            this.handleError(error, true);
         });
     }
 
@@ -120,8 +120,7 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
             this.isLoading = false;
         } else if (result.error) {
             this.transaction = undefined;
-            this.error = result.error;
-            console.error(this.error);
+            this.handleError(result.error, true);
             this.isLoading = false;
         }
     }
@@ -202,13 +201,7 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
                 this.isLoading = false;
             })
             .catch(error => {
-                this.error = error;
-                console.error(this.error);
-                this.showToast(
-                    'Error Sending Receipt',
-                    'There was an error sending the receipt.',
-                    'error'
-                );
+                this.handleError(error, true);
                 this.isLoading = false;
             });
     }
@@ -216,6 +209,22 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
     /**
      * Util
      */
+
+    handleError(error, showToast = false) {
+        this.error = error;
+        console.error(this.error);
+
+        let errorMessage = 'Unknown Error';
+        if (Array.isArray(this.error.body)) {
+            errorMessage = this.error.body.map(e => e.message).join(', ');
+        } else if (typeof this.error.body.message === 'string') {
+            errorMessage = this.error.body.message;
+        }
+
+        if (showToast) {
+            this.showToast('Transaction Close Actions Error', errorMessage, 'error');
+        }
+    }
 
     showToast(title, message, variant) {
         const toastEvent = new ShowToastEvent({

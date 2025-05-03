@@ -170,4 +170,55 @@ private class ReceiptSender_Test {
         Test.stopTest();
     }
 
+    @IsTest
+    static void testUnsuccessfulEmailResult() {
+        EmailTemplate emailTemplate = [SELECT Name FROM EmailTemplate LIMIT 1];
+
+        Traction_Rec_Receipt_Setting__mdt settings = new Traction_Rec_Receipt_Setting__mdt();
+        settings.Email_Template_Name__c = emailTemplate.Name;
+        settings.File_Name__c = 'TestReceipt';
+        ReceiptSender.receiptSettings = settings;
+
+        Contact ct = agrec.TestDataFactory.createContacts(1).get(0);
+        insert ct;
+
+        TREX1__Transaction__c trx = agrec.TestDataFactory.createTransaction(ct.Id);
+        insert trx;
+
+        List<ContentDocumentLink> cdls = agrec.TestDataFactory.createReceipts(new List<SObject>{trx});
+        insert cdls;
+
+        Messaging.SendEmailResult mockResult = getMockFailedResult();
+        ReceiptSender.testSendResults = new List<Messaging.SendEmailResult>{mockResult};
+
+        Test.startTest();
+        ReceiptSender sender = new ReceiptSender(trx.Id, ct.Id);
+        try {
+            sender.send();
+            System.Assert.fail('Expected exception was not thrown');
+        } catch (TransactionCloseActionsException e) {
+            System.assert(e.getMessage().contains('Failed to send receipt'), 'Unexpected error message: ' + e.getMessage());
+            System.debug('Caught expected exception: ' + e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    private static Messaging.SendEmailResult getMockFailedResult() {
+        String payload = '{' +
+            '  "success": false,' +
+            '  "errors": [' +
+            '    {' +
+            '      "statusCode": "REQUIRED_FIELD_MISSING",' +
+            '      "message": "Missing required field"' +
+            '    }' +
+            '  ]' +
+            '}';
+
+        Messaging.SendEmailResult mockResult = (Messaging.SendEmailResult) JSON.deserialize(
+            payload, 
+            Messaging.SendEmailResult.class
+        );
+        return mockResult;
+    }
+
 }
