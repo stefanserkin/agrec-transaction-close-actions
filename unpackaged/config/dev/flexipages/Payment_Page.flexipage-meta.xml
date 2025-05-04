@@ -7,7 +7,7 @@
                     <name>enableEmailReceipt</name>
                     <value>true</value>
                 </componentInstanceProperties>
-                <componentName>transactionCloseActions</componentName>
+                <componentName>agrec:transactionCloseActions</componentName>
                 <identifier>agrec_transactionCloseActions</identifier>
             </componentInstance>
         </itemInstances>
@@ -31,7 +31,7 @@
                     <name>enableEmailReceipt</name>
                     <value>true</value>
                 </componentInstanceProperties>
-                <componentName>transactionCloseActions</componentName>
+                <componentName>agrec:transactionCloseActions</componentName>
                 <identifier>agrec_transactionCloseActions2</identifier>
             </componentInstance>
         </itemInstances>

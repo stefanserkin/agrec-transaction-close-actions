@@ -85,6 +85,8 @@ flows:
                 task: configure_scratch_user
             11:
                 task: assign_component_user_permset
+            12:
+                task: deploy_dev_config
 
     config_managed:
         steps:
@@ -92,6 +94,8 @@ flows:
                 task: configure_scratch_user
             11:
                 task: assign_component_user_permset
+            12:
+                task: deploy_qa_config
 
 orgs:
     scratch:
