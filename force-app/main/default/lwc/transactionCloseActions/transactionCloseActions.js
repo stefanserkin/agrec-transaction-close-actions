@@ -21,9 +21,9 @@
  */
 import { LightningElement, api, wire, track } from 'lwc';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { subscribe, unsubscribe, onError } from 'lightning/empApi';
 import { refreshApex } from '@salesforce/apex';
+import { handleError, showToast } from 'c/lwcUtils';
 import TransactionCloseModal from 'c/transactionCloseActionsModal';
 import getTransaction from '@salesforce/apex/TransactionCloseActionsController.getTransaction';
 import sendReceipt from '@salesforce/apex/TransactionCloseActionsController.sendReceipt';
@@ -100,7 +100,7 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
     registerErrorListener() {
         onError((error) => {
-            this.handleError(error, true);
+            handleError(this, error, 'Error registering listener for transaction close actions');
         });
     }
 
@@ -115,12 +115,14 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
 
         if (result.data) {
             this.transaction = result.data;
-            this.recipientContactId = this.transaction.TREX1__Contact__r.Email ? this.transaction.TREX1__Contact__c : undefined;
+            if (this.transaction.TREX1__Contact__c && this.transaction.TREX1__Contact__r.Email) {
+                this.recipientContactId = this.transaction.TREX1__Contact__c;
+            }
             this.error = undefined;
             this.isLoading = false;
         } else if (result.error) {
             this.transaction = undefined;
-            this.handleError(result.error, true);
+            handleError(this, result.error, 'Error retrieving transaction');
             this.isLoading = false;
         }
     }
@@ -193,46 +195,13 @@ export default class TransactionCloseActions extends NavigationMixin(LightningEl
         this.isLoading = true;
         sendReceipt({transactionId: this.transaction.Id, recipientContactId: this.recipientContactId})
             .then(() => {
-                this.showToast(
-                    'Receipt Sent',
-                    'The receipt was sent successfully.',
-                    'success'
-                );
+                showToast(this, 'Receipt Sent', 'The receipt was sent successfully.', 'success');
                 this.isLoading = false;
             })
             .catch(error => {
-                this.handleError(error, true);
+                handleError(this, error, 'Error sending receipt');
                 this.isLoading = false;
             });
-    }
-
-    /**
-     * Util
-     */
-
-    handleError(error, showToast = false) {
-        this.error = error;
-        console.error(this.error);
-
-        let errorMessage = 'Unknown Error';
-        if (Array.isArray(this.error.body)) {
-            errorMessage = this.error.body.map(e => e.message).join(', ');
-        } else if (typeof this.error.body.message === 'string') {
-            errorMessage = this.error.body.message;
-        }
-
-        if (showToast) {
-            this.showToast('Transaction Close Actions Error', errorMessage, 'error');
-        }
-    }
-
-    showToast(title, message, variant) {
-        const toastEvent = new ShowToastEvent({
-            title,
-            message,
-            variant
-        })
-        this.dispatchEvent(toastEvent);
     }
 
 }
