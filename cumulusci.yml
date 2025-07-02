@@ -28,6 +28,14 @@ tasks:
                     AssigneeId = UserInfo.getUserId()
                 );
 
+    bypass_rec_account_trigger:
+        description: Adds a Traction Rec trigger bypass for the account object
+        class_path: cumulusci.tasks.apex.anon.AnonymousApexTask
+        options:
+            apex: >
+                insert new TREX1__Trigger_Bypass__c(Name = 'Account', TREX1__Active__c = true, TREX1__Expiry__c = Datetime.now().addDays(1), 
+                    TREX1__User_Ids__c = u.Id, TREX1__Notes__c = 'Account Bypass', TREX1__SObject__c = 'Account');
+
     configure_scratch_user:
         description: Updates the default user to eastern time
         class_path: cumulusci.tasks.apex.anon.AnonymousApexTask
@@ -87,6 +95,8 @@ flows:
                 task: assign_component_user_permset
             12:
                 task: deploy_dev_config
+            13:
+                task: bypass_rec_account_trigger
 
     config_managed:
         steps:
@@ -96,6 +106,8 @@ flows:
                 task: assign_component_user_permset
             12:
                 task: deploy_qa_config
+            13:
+                task: bypass_rec_account_trigger
 
 orgs:
     scratch:
